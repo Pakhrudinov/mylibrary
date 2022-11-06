@@ -26,6 +26,12 @@ class Language(models.Model):
     name = models.CharField(max_length=200,
                             help_text="Enter the book's natural language (e.g. English, French, Japanese etc.)")
 
+    def __str__(self):
+        """
+        String for representing the Model object.
+        """
+        return self.name
+
 
 class Book(models.Model):
     """
@@ -46,11 +52,19 @@ class Book(models.Model):
     # ManyToManyField used because genre can contain many books. Books can cover many genres.
     # Genre class has already been defined so we can specify the object above.
 
+    def display_genre(self):
+        """
+        Creates a string for the Genre. This is required to display genre in Admin.
+        """
+        return ', '.join([genre.name for genre in self.genre.all()[:3]])
+
+    display_genre.short_description = 'Genre'
+
     def __str__(self):
         """
         String for representing the Model object.
         """
-        return self.title
+        return f'{self.title}'
 
     def get_absolute_url(self):
         """
@@ -67,7 +81,9 @@ class BookInstance(models.Model):
                           help_text="Unique ID for this particular book across whole library")
     book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
     imprint = models.CharField(max_length=200)
-    due_back = models.DateField(null=True, blank=True)
+    due_back = models.DateField(null=True, blank=True,
+                                #help_text="Note: You are 10 hours ahead of server time"
+                                )
 
     LOAN_STATUS = (
         ('m', 'Maintenance'),
